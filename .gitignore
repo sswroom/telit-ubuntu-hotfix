@@ -1,0 +1,15 @@
+#
+# Normal rules
+#
+.*
+*.o
+*.o.*
+*.ko
+*.mod.c
+*.order
+
+#
+# Top-level generic files
+#
+/Module.symvers
+

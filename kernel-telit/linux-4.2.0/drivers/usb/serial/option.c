@@ -277,28 +277,15 @@ static void option_instat_callback(struct urb *urb);
 #define TELIT_PRODUCT_LE922_USBCFG5		0x1045
 #define TELIT_PRODUCT_ME910			0x1100
 #define TELIT_PRODUCT_ME910_DUAL_MODEM		0x1101
-#define TELIT_PRODUCT_ME910_ECM			0x1102
 #define TELIT_PRODUCT_LE920			0x1200
 #define TELIT_PRODUCT_LE910			0x1201
-#define TELIT_PRODUCT_LE910_USBCFG1		0x1203
-#define TELIT_PRODUCT_LE910_USBCFG2		0x1204
 #define TELIT_PRODUCT_LE910_USBCFG4		0x1206
-#define TELIT_PRODUCT_LE910C4_USBCFG5		0x1250
-#define TELIT_PRODUCT_LE910C4_USBCFG6		0x1251
-#define TELIT_PRODUCT_LE910C4_USBCFG7		0x1252
-#define TELIT_PRODUCT_LE910C4_USBCFG8		0x1253
-#define TELIT_PRODUCT_LE910C4_USBCFG9		0x1254
-#define TELIT_PRODUCT_LE910C4_USBCFG10		0x1255
 #define TELIT_PRODUCT_LE920A4_1207		0x1207
 #define TELIT_PRODUCT_LE920A4_1208		0x1208
 #define TELIT_PRODUCT_LE920A4_1211		0x1211
 #define TELIT_PRODUCT_LE920A4_1212		0x1212
 #define TELIT_PRODUCT_LE920A4_1213		0x1213
 #define TELIT_PRODUCT_LE920A4_1214		0x1214
-#define TELIT_PRODUCT_LN940			0x1900
-#define TELIT_PRODUCT_LN940_MBIM		0x1901
-#define TELIT_PRODUCT_LN960			0x1910
-#define TELIT_PRODUCT_LN960_MBIM		0x1911
 
 /* ZTE PRODUCTS */
 #define ZTE_VENDOR_ID				0x19d2
@@ -665,6 +652,16 @@ static const struct option_blacklist_info telit_ln940_blacklist_mbim = {
 static const struct option_blacklist_info telit_ln960_blacklist = {
 	.sendsetup = BIT(2),
 	.reserved = BIT(0) | BIT(1) | BIT(6),
+};
+
+static const struct option_blacklist_info telit_le910cx_rmnet_audio_blacklist = {
+	.sendsetup = BIT(0),
+	.reserved = BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5),
+};
+
+static const struct option_blacklist_info telit_le910cx_rndis_audio_blacklist = {
+	.sendsetup = BIT(2),
+	.reserved = BIT(0) | BIT(1) | BIT(3) | BIT(4) | BIT(5) | BIT(6),
 };
 
 static const struct option_blacklist_info sierra_mc73xx_blacklist = {
@@ -1234,26 +1231,30 @@ static const struct usb_device_id option_ids[] = {
 		.driver_info = (kernel_ulong_t)&telit_me910_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 		.driver_info = (kernel_ulong_t)&telit_me910_dual_modem_blacklist },
-	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_ECM, 0xff),
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1102, 0xff),	/* Telit ME910 (ECM) */
 		.driver_info = (kernel_ulong_t)&net_intf0_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
 		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG1),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1203),				/* Telit LE910Cx (RNDIS) */
 		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg0 },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG2),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1204),				/* Telit LE910Cx (MBIM) */
 		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
 		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG5),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1250),				/* Telit LE910Cx (rmnet) */
 		.driver_info = (kernel_ulong_t)&telit_le910c4_blacklist_usbcfg5 },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG6),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1251),				/* Telit LE910Cx (RNDIS) */
 		.driver_info = (kernel_ulong_t)&telit_le910c4_blacklist_usbcfg6 },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG7),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1252),				/* Telit LE910Cx (MBIM) */
 		.driver_info = (kernel_ulong_t)&telit_le910c4_blacklist_usbcfg6 },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG8),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1253),				/* Telit LE910Cx (ECM) */
 		.driver_info = (kernel_ulong_t)&telit_le910c4_blacklist_usbcfg6 },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG9) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG10) },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1254) },			/* Telit LE910Cx (Modem only) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1255) },			/* Telit LE910Cx (Modem only+NMEA) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1230),				/* Telit LE910Cx (rmnet) */
+		.driver_info = (kernel_ulong_t)&telit_le910cx_rmnet_audio_blacklist },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1231),				/* Telit LE910Cx (RNDIS) */
+		.driver_info = (kernel_ulong_t)&telit_le910cx_rndis_audio_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
 		.driver_info = (kernel_ulong_t)&telit_le920_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1207) },
@@ -1266,13 +1267,17 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
 		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
-	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LN940, 0xff),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),				/* Telit LE910Cx (rmnet) */
+		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),				/* Telit LE910Cx (rmnet) */
+		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
 		.driver_info = (kernel_ulong_t)&telit_le920a4_blacklist_1 },
-	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LN940_MBIM, 0xff),
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
 		.driver_info = (kernel_ulong_t)&telit_ln940_blacklist_mbim },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LN960),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1910),				/* Telit LN960A16 (MBIM & QMI) */
 		.driver_info = (kernel_ulong_t)&telit_ln960_blacklist },
-	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LN960_MBIM, 0xff),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1911),				/* Telit LN960A16 (MBIM) */
 		.driver_info = (kernel_ulong_t)&telit_ln940_blacklist_mbim },
 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),

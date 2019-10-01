@@ -264,6 +264,7 @@ static void qmi_wwan_netdev_setup(struct net_device *net)
 		net->hard_header_len = 0;
 		net->addr_len        = 0;
 		net->flags           = IFF_POINTOPOINT | IFF_NOARP | IFF_MULTICAST;
+		net->mtu             = 1500;
 		set_bit(EVENT_NO_IP_ALIGN, &dev->flags);
 		netdev_dbg(net, "mode: raw IP\n");
 	} else if (!net->header_ops) { /* don't bother if already set */
@@ -742,6 +743,7 @@ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
 		dev->net->hard_header_len = 0;
 		dev->net->addr_len        = 0;
 		dev->net->flags           = IFF_POINTOPOINT | IFF_NOARP | IFF_MULTICAST;
+		dev->net->mtu             = 1500;
 		dev_dbg(&intf->dev, "mode: raw IP\n");
 	}
 
@@ -1257,9 +1259,12 @@ static const struct usb_device_id products[] = {
 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1201, 2)},	/* Telit LE920, LE920A4 */
-	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1250, 0)},	/* Telit LE910C4 */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1250, 0)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1230, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1260, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1261, 2)},	/* Telit LE910Cx */
 	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1900, 1)},	/* Telit LN940 series */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1910, 0)},	/* Telit LN960 */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1910, 0)},	/* Telit LN960A16 */
 	{QMI_FIXED_INTF(0x1c9e, 0x9801, 3)},	/* Telewell TW-3G HSPA+ */
 	{QMI_FIXED_INTF(0x1c9e, 0x9803, 4)},	/* Telewell TW-3G HSPA+ */
 	{QMI_FIXED_INTF(0x1c9e, 0x9b01, 3)},	/* XS Stick W100-2 from 4G Systems */

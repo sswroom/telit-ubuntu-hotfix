@@ -6,14 +6,22 @@ Supported Ubuntu Release:
 * Ubunru 12.04.2 LTS (Kernel v3.5/v3.8/v3.11/v3.13)
 * Ubuntu 14.04.x LTS (Kernel v3.13/v3.16/v3.19/v4.2/v4.4)
 * Ubuntu 16.04.x LTS (Kernel v4.4/v4.8/v4.10/v4.13/v4.15)
-* Ubuntu 18.04.x LTS (Kernel v4.15)
+* Ubuntu 18.04.x LTS (Kernel v4.15/v4.18/v5.0)
 
 Build and Installation
 
 ```sh
 $ git clone https://gitlab.com/subnike.tw/telit-ubuntu-hotfix
 $ cd telit-ubuntu-hotfix
-$ sudo install
+$ sudo make install
+```
+
+If you had inserted the modules into the Kernel, you would remove and then add again
+```sh
+$ sudo modprobe -r qmi_wwan
+$ sudo modprobe -r option
+$ sudo modprobe option
+$ sudo modprobe qmi_wwan
 ```
 
 Should get the messages like the following in dmesg

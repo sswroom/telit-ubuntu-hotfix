@@ -290,15 +290,7 @@ static void option_instat_callback(struct urb *urb);
 #define TELIT_PRODUCT_ME910_DUAL_MODEM		0x1101
 #define TELIT_PRODUCT_LE920			0x1200
 #define TELIT_PRODUCT_LE910			0x1201
-#define TELIT_PRODUCT_LE910_USBCFG1		0x1203
-#define TELIT_PRODUCT_LE910_USBCFG2		0x1204
 #define TELIT_PRODUCT_LE910_USBCFG4		0x1206
-#define TELIT_PRODUCT_LE910C4_USBCFG5		0x1250
-#define TELIT_PRODUCT_LE910C4_USBCFG6		0x1251
-#define TELIT_PRODUCT_LE910C4_USBCFG7		0x1252
-#define TELIT_PRODUCT_LE910C4_USBCFG8		0x1253
-#define TELIT_PRODUCT_LE910C4_USBCFG9		0x1254
-#define TELIT_PRODUCT_LE910C4_USBCFG10		0x1255
 #define TELIT_PRODUCT_LE920A4_1207		0x1207
 #define TELIT_PRODUCT_LE920A4_1208		0x1208
 #define TELIT_PRODUCT_LE920A4_1211		0x1211
@@ -568,6 +560,9 @@ static void option_instat_callback(struct urb *urb);
 
 /* Interface is reserved */
 #define RSVD(ifnum)	((BIT(ifnum) & 0xff) << 0)
+
+/* Interface must have two endpoints */
+#define NUMEP2		BIT(16)
 
 
 static const struct usb_device_id option_ids[] = {
@@ -1156,22 +1151,26 @@ static const struct usb_device_id option_ids[] = {
 	  .driver_info = NCTRL(0) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG1),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1203),				/* Telit LE910Cx (RNDIS) */
 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG2),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1204),				/* Telit LE910Cx (MBIM) */
 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG5),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1250),				/* Telit LE910Cx (rmnet) */
 	  .driver_info = RSVD(0) | NCTRL(1) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG6),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1251),				/* Telit LE910Cx (RNDIS) */
 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG7),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1252),				/* Telit LE910Cx (MBIM) */
 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG8),
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1253),				/* Telit LE910Cx (ECM) */
 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG9) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910C4_USBCFG10) },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1254) },			/* Telit LE910Cx (Modem only) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1255) },			/* Telit LE910Cx (Modem only+NMEA) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1230),				/* Telit LE910Cx (rmnet) */
+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | RSVD(5) },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1231),				/* Telit LE910Cx (RNDIS) */
+	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) | RSVD(4) | RSVD(5) | RSVD(6) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(5) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1207) },
@@ -1184,13 +1183,17 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
-	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1900, 0xff),	/* Telit LN940 (QMI) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),				/* Telit LE910Cx (rmnet) */
+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),				/* Telit LE910Cx (rmnet) */
+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
 	  .driver_info = NCTRL(0) | RSVD(1) },
 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
 	  .driver_info = NCTRL(0) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1910),				/* Telit LN960 (MBIM & QMI) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1910),				/* Telit LN960A16 (MBIM & QMI) */
 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1911),				/* Telit LN960 (MBIM) */
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1911),				/* Telit LN960A16 (MBIM) */
 	  .driver_info = NCTRL(0) | RSVD(4) | RSVD(5) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
@@ -2016,11 +2019,10 @@ static int option_probe(struct usb_serial *serial,
 {
 	struct usb_interface_descriptor *iface_desc =
 				&serial->interface->cur_altsetting->desc;
-	struct usb_device_descriptor *dev_desc = &serial->dev->descriptor;
 	unsigned long device_flags = id->driver_info;
 
 	/* Never bind to the CD-Rom emulation interface	*/
-	if (iface_desc->bInterfaceClass == 0x08)
+	if (iface_desc->bInterfaceClass == USB_CLASS_MASS_STORAGE)
 		return -ENODEV;
 
 	/*
@@ -2030,13 +2032,12 @@ static int option_probe(struct usb_serial *serial,
 	 */
 	if (device_flags & RSVD(iface_desc->bInterfaceNumber))
 		return -ENODEV;
+
 	/*
-	 * Don't bind network interface on Samsung GT-B3730, it is handled by
-	 * a separate module.
+	 * Allow matching on bNumEndpoints for devices whose interface numbers
+	 * can change (e.g. Quectel EP06).
 	 */
-	if (dev_desc->idVendor == cpu_to_le16(SAMSUNG_VENDOR_ID) &&
-	    dev_desc->idProduct == cpu_to_le16(SAMSUNG_PRODUCT_GT_B3730) &&
-	    iface_desc->bInterfaceClass != USB_CLASS_CDC_DATA)
+	if (device_flags & NUMEP2 && iface_desc->bNumEndpoints != 2)
 		return -ENODEV;
 
 	/* Store the device flags so we can use them during attach. */
