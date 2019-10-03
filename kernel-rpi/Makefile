@@ -1,30 +1,35 @@
-SOURCE_DIR := kernel
-SERIAL_DIR := drivers/usb/serial
-USBNET_DIR := drivers/net/usb
-MODULE_SERIAL := option
-MODULE_WWAN := qmi_wwan
+SDIR := kernel
+USB_SERIAL_DIR := drivers/usb/serial
+NET_USB_DIR := drivers/net/usb
+MOD_USB_SERIAL_OPTION := option
+MOD_USB_NET_QMI_WWAN := qmi_wwan
 
-UDEV_DIR := udev/rules.d
-
-obj-m := $(SOURCE_DIR)/$(SERIAL_DIR)/$(MODULE_SERIAL).o $(SOURCE_DIR)/$(USBNET_DIR)/$(MODULE_WWAN).o
+obj-m := \
+	$(SDIR)/$(USB_SERIAL_DIR)/$(MOD_USB_SERIAL_OPTION).o \
+	$(SDIR)/$(NET_USB_DIR)/$(MOD_USB_NET_QMI_WWAN).o
 ODIR := /lib/modules/$(shell uname -r)/kernel
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 
-all: info clean
+define TAB
+	
+endef
+
+all: get-systeminfo clean
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
 
-install: all
-	if [ ! -d "$(ODIR)/$(SERIAL_DIR)" ]; then mkdir -p $(ODIR)/$(SERIAL_DIR); fi
-	cp -f $(SOURCE_DIR)/$(SERIAL_DIR)/$(MODULE_SERIAL).ko $(ODIR)/$(SERIAL_DIR)
-	if [ ! -d "$(ODIR)/$(USBNET_DIR)" ]; then mkdir -p $(ODIR)/$(USBNET_DIR); fi
-	cp -f $(SOURCE_DIR)/$(USBNET_DIR)/$(MODULE_WWAN).ko $(ODIR)/$(USBNET_DIR)
-	depmod -a
-	cp -f $(UDEV_DIR)/* /etc/$(UDEV_DIR)
-	udevadm control --reload-rules && udevadm trigger
+install: all install-mod udev-rules
 
-info:
-	$(info ************  System Information ************)
+install-mod:
+	$(info ************ Kernel Modules installing ************)
+	if [ ! -d "$(ODIR)/$(USB_SERIAL_DIR)" ]; then mkdir -p $(ODIR)/$(USB_SERIAL_DIR); fi
+	cp -f $(SDIR)/$(USB_SERIAL_DIR)/$(MOD_USB_SERIAL_OPTION).ko $(ODIR)/$(USB_SERIAL_DIR)
+	if [ ! -d "$(ODIR)/$(NET_USB_DIR)" ]; then mkdir -p $(ODIR)/$(NET_USB_DIR); fi
+	cp -f $(SDIR)/$(NET_USB_DIR)/$(MOD_USB_NET_QMI_WWAN).ko $(ODIR)/$(NET_USB_DIR)
+	depmod -a
+
+get-systeminfo:
+	$(info ************ System Information ************)
 	$(info SYSTEM INFO:)
 	$(info $(TAB)$(shell lsb_release -i))
 	$(info $(TAB)$(shell lsb_release -d))
@@ -32,7 +37,13 @@ info:
 	$(info $(TAB)$(shell lsb_release -c))
 	$(info KERNEL VERSION:)
 	$(info $(TAB)$(shell uname -a))
-	$(info ************  System Information ************)
+	$(info *********************************************)
+
+udev-rules:
+	$(info ************ udev rules installing ************)
+	$(shell cp -f udev_rules.d/* /etc/udev/rules.d/)
+	$(info Reload udev rules)
+	$(shell udevadm control --reload-rules && udevadm trigger)
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean

@@ -4,16 +4,13 @@ ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="191
 
 # Set ModemManager to manual scan
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{ID_MM_DEVICE_MANUAL_SCAN_ONLY}="1"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ENV{ID_MM_DEVICE_MANUAL_SCAN_ONLY}="1"
 
-# Ignore all ports, but fixed the qmi quirk
-ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="00", ENV{ID_MM_PORT_IGNORE}="1"
-#ACTION=="add", SUBSYSTEM=="usbmisc", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="01", RUN+="${LN940_MM_QUIRK_SCRIPT}"
+# Ignore all AT command ports, make ModemManager used QMI port
+# Telit LN940A9 series
 ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="02", ENV{ID_MM_PORT_IGNORE}="1"
 ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="03", ENV{ID_MM_PORT_IGNORE}="1"
-ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="04", ENV{ID_MM_PORT_IGNORE}="1"
-
-#SUBSYSTEM=="tty", ACTION=="add", \
-#  ENV{ID_VENDOR_ID}=="1bc7", ENV{ID_MODEL_ID}=="1101", \
-#  ENV{ID_USB_INTERFACE_NUM}=="01", \
-#  RUN+="/bin/sh -c 'echo $env{DEVNAME} > /dev/shm/port-$env{ID_SERIAL_SHORT}'"
+# Telit LN960A16 series
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ENV{.MM_USBIFNUM}=="02", ENV{ID_MM_PORT_IGNORE}="1"
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ENV{.MM_USBIFNUM}=="03", ENV{ID_MM_PORT_IGNORE}="1"
 

@@ -71,14 +71,17 @@ $ dmesg
 Test QMI wth qmicli (libqmi - https://www.freedesktop.org/wiki/Software/libqmi/)
 
 ```sh
-$ sudo qmicli -d /dev/cdc-wdm0 --wds-start-network="apn=internet,ip-type=4" --client-no-release-cid
-[/dev/cdc-wdm0] Network started
+$ sudo ip link set wwan0 down
+$ sudo qmicli -d /dev/cdc-wdm1 --set-expected-data-format=raw-ip
+[/dev/cdc-wdm1] expected data format set to: raw-ip
+$ sudo qmicli -d /dev/cdc-wdm1 --wds-start-network="apn=internet,ip-type=4" --client-no-release-cid
+[/dev/cdc-wdm1] Network started
 	Packet data handle: '744952640'
-[/dev/cdc-wdm0] Client ID not released:
+[/dev/cdc-wdm1] Client ID not released:
 	Service: 'wds'
 	    CID: '21'
-$ sudo qmicli -d /dev/cdc-wdm0 --wds-get-current-settings --client-no-release-cid --client-cid=21
-[/dev/cdc-wdm0] Current settings retrieved:
+$ sudo qmicli -d /dev/cdc-wdm1 --wds-get-current-settings --client-no-release-cid --client-cid=21
+[/dev/cdc-wdm1] Current settings retrieved:
            IP Family: IPv4
         IPv4 address: 100.99.101.156
     IPv4 subnet mask: 255.255.255.248
@@ -87,9 +90,13 @@ IPv4 gateway address: 100.99.101.157
   IPv4 secondary DNS: 210.200.211.193
                  MTU: 1500
              Domains: none
-[/dev/cdc-wdm0] Client ID not released:
+[/dev/cdc-wdm1] Client ID not released:
 	Service: 'wds'
 	    CID: '21'
+$ ip link show wwan0
+11: wwan0: <POINTOPOINT,MULTICAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/none
+$ sudo ip link set wwan0 mtu 1500
 $ sudo udhcpc -i wwan0
 udhcpc (v1.22.1) started
 Sending discover...
@@ -105,9 +112,9 @@ PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 --- 8.8.8.8 ping statistics ---
 4 packets transmitted, 4 received, 0% packet loss, time 3003ms
 rtt min/avg/max/mdev = 23.777/67.955/164.764/56.366 ms
-$ sudo qmicli -d /dev/cdc-wdm0 --wds-stop-network=744952640 --client-cid=21
+$ sudo qmicli -d /dev/cdc-wdm1 --wds-stop-network=744952640 --client-cid=21
 Network cancelled... releasing resources
-[/dev/cdc-wdm0] Network stopped
-$ sudo ifconfig wwan0 down
+[/dev/cdc-wdm1] Network stopped
+$ sudo ip link set wwan0 down
 ```
 
