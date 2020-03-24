@@ -63,7 +63,7 @@ enum qmi_wwan_flags {
 
 enum qmi_wwan_quirks {
 	QMI_WWAN_QUIRK_DTR = 1 << 0,	/* needs "set DTR" request */
-	QMI_WWAN_QUIRK_RAWIP_ONLY = 1 << 1,	/* only support "raw IP" framing */
+	QMI_WWAN_QUIRK_RAWIP_ONLY = 1 << 7,	/* only support "raw IP" framing */
 };
 
 struct qmimux_hdr {
@@ -264,7 +264,6 @@ static void qmi_wwan_netdev_setup(struct net_device *net)
 		net->hard_header_len = 0;
 		net->addr_len        = 0;
 		net->flags           = IFF_POINTOPOINT | IFF_NOARP | IFF_MULTICAST;
-		net->mtu             = 1500;
 		set_bit(EVENT_NO_IP_ALIGN, &dev->flags);
 		netdev_dbg(net, "mode: raw IP\n");
 	} else if (!net->header_ops) { /* don't bother if already set */
@@ -363,8 +362,8 @@ static ssize_t add_mux_store(struct device *d,  struct device_attribute *attr, c
 	if (kstrtou8(buf, 0, &mux_id))
 		return -EINVAL;
 
-	/* mux_id [1 - 0x7f] range empirically found */
-	if (mux_id < 1 || mux_id > 0x7f)
+	/* mux_id [1 - 254] for compatibility with ip(8) and the rmnet driver */
+	if (mux_id < 1 || mux_id > 254)
 		return -EINVAL;
 
 	if (!rtnl_trylock())
@@ -435,14 +434,22 @@ err:
 	return ret;
 }
 
+static ssize_t address_show(struct device *d, struct device_attribute *attr, char *buf)
+{
+	struct net_device *dev = to_net_dev(d);
+	return scnprintf(buf, PAGE_SIZE, "%*phC\n", ETH_ALEN, dev->dev_addr);
+}
+
 static DEVICE_ATTR_RW(raw_ip);
 static DEVICE_ATTR_RW(add_mux);
 static DEVICE_ATTR_RW(del_mux);
+static DEVICE_ATTR_RO(address);
 
 static struct attribute *qmi_wwan_sysfs_attrs[] = {
 	&dev_attr_raw_ip.attr,
 	&dev_attr_add_mux.attr,
 	&dev_attr_del_mux.attr,
+	&dev_attr_address.attr,
 	NULL,
 };
 
@@ -743,7 +750,6 @@ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
 		dev->net->hard_header_len = 0;
 		dev->net->addr_len        = 0;
 		dev->net->flags           = IFF_POINTOPOINT | IFF_NOARP | IFF_MULTICAST;
-		dev->net->mtu             = 1500;
 		dev_dbg(&intf->dev, "mode: raw IP\n");
 	}
 
@@ -1256,6 +1262,7 @@ static const struct usb_device_id products[] = {
 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */

@@ -505,14 +505,22 @@ err:
 	return ret;
 }
 
+static ssize_t address_show(struct device *d, struct device_attribute *attr, char *buf)
+{
+	struct net_device *dev = to_net_dev(d);
+	return scnprintf(buf, PAGE_SIZE, "%*phC\n", ETH_ALEN, dev->dev_addr);
+}
+
 static DEVICE_ATTR_RW(raw_ip);
 static DEVICE_ATTR_RW(add_mux);
 static DEVICE_ATTR_RW(del_mux);
+static DEVICE_ATTR_RO(address);
 
 static struct attribute *qmi_wwan_sysfs_attrs[] = {
 	&dev_attr_raw_ip.attr,
 	&dev_attr_add_mux.attr,
 	&dev_attr_del_mux.attr,
+	&dev_attr_address.attr,
 	NULL,
 };
 
@@ -1360,6 +1368,7 @@ static const struct usb_device_id products[] = {
 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
