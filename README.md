@@ -6,28 +6,29 @@ Supported Ubuntu Release:
 * Ubunru 12.04.2 LTS (Kernel v3.5/v3.8/v3.11/v3.13)
 * Ubuntu 14.04.x LTS (Kernel v3.13/v3.16/v3.19/v4.2/v4.4)
 * Ubuntu 16.04.x LTS (Kernel v4.4/v4.8/v4.10/v4.13/v4.15)
-* Ubuntu 18.04.x LTS (Kernel v4.15/v4.18/v5.0)
+* Ubuntu 18.04.x LTS (Kernel v4.15/v4.18/v5.0/v5.3)
+* Until Ubuntu 19.10
 
 Build and Installation
 
 ```sh
-$ git clone https://gitlab.com/subnike.tw/telit-ubuntu-hotfix
-$ cd telit-ubuntu-hotfix
-$ sudo make install
+~$ git clone https://gitlab.com/subnike.tw/telit-ubuntu-hotfix
+~$ cd telit-ubuntu-hotfix
+~/telit-ubuntu-hotfix$ sudo make install
 ```
 
 If you had inserted the modules into the Kernel, you would remove and then add again
 ```sh
-$ sudo modprobe -r qmi_wwan
-$ sudo modprobe -r option
-$ sudo modprobe option
-$ sudo modprobe qmi_wwan
+~$ sudo modprobe -r qmi_wwan
+~$ sudo modprobe -r option
+~$ sudo modprobe option
+~$ sudo modprobe qmi_wwan
 ```
 
 Should get the messages like the following in dmesg
 
 ```sh
-$ dmesg
+~$ dmesg
 [  159.590901] usb 2-4.3: new SuperSpeed USB device number 5 using xhci_hcd
 [  159.616271] usb 2-4.3: New USB device found, idVendor=1bc7, idProduct=1900
 [  159.616278] usb 2-4.3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
@@ -71,16 +72,16 @@ $ dmesg
 Test QMI wth qmicli (libqmi - https://www.freedesktop.org/wiki/Software/libqmi/)
 
 ```sh
-$ sudo ip link set wwan0 down
-$ sudo qmicli -d /dev/cdc-wdm1 --set-expected-data-format=raw-ip
+~$ sudo ip link set wwan0 down
+~$ sudo qmicli -d /dev/cdc-wdm1 --set-expected-data-format=raw-ip
 [/dev/cdc-wdm1] expected data format set to: raw-ip
-$ sudo qmicli -d /dev/cdc-wdm1 --wds-start-network="apn=internet,ip-type=4" --client-no-release-cid
+~$ sudo qmicli -d /dev/cdc-wdm1 --wds-start-network="apn=internet,ip-type=4" --client-no-release-cid
 [/dev/cdc-wdm1] Network started
 	Packet data handle: '744952640'
 [/dev/cdc-wdm1] Client ID not released:
 	Service: 'wds'
 	    CID: '21'
-$ sudo qmicli -d /dev/cdc-wdm1 --wds-get-current-settings --client-no-release-cid --client-cid=21
+~$ sudo qmicli -d /dev/cdc-wdm1 --wds-get-current-settings --client-no-release-cid --client-cid=21
 [/dev/cdc-wdm1] Current settings retrieved:
            IP Family: IPv4
         IPv4 address: 100.99.101.156
@@ -93,16 +94,16 @@ IPv4 gateway address: 100.99.101.157
 [/dev/cdc-wdm1] Client ID not released:
 	Service: 'wds'
 	    CID: '21'
-$ ip link show wwan0
+~$ ip link show wwan0
 11: wwan0: <POINTOPOINT,MULTICAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/none
-$ sudo ip link set wwan0 mtu 1500
-$ sudo udhcpc -i wwan0
+~$ sudo ip link set wwan0 mtu 1500
+~$ sudo udhcpc -i wwan0
 udhcpc (v1.22.1) started
 Sending discover...
 Sending select for 100.99.101.156...
 Lease of 100.99.101.156 obtained, lease time 7200
-$ ping -c 4 8.8.8.8
+~$ ping -c 4 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 64 bytes from 8.8.8.8: icmp_seq=1 ttl=53 time=164 ms
 64 bytes from 8.8.8.8: icmp_seq=2 ttl=53 time=23.7 ms
@@ -112,9 +113,9 @@ PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 --- 8.8.8.8 ping statistics ---
 4 packets transmitted, 4 received, 0% packet loss, time 3003ms
 rtt min/avg/max/mdev = 23.777/67.955/164.764/56.366 ms
-$ sudo qmicli -d /dev/cdc-wdm1 --wds-stop-network=744952640 --client-cid=21
+~$ sudo qmicli -d /dev/cdc-wdm1 --wds-stop-network=744952640 --client-cid=21
 Network cancelled... releasing resources
 [/dev/cdc-wdm1] Network stopped
-$ sudo ip link set wwan0 down
+~$ sudo ip link set wwan0 down
 ```
 
