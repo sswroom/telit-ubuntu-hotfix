@@ -9,6 +9,9 @@ obj-m := \
 	$(SDIR)/$(NET_USB_DIR)/$(MOD_USB_NET_QMI_WWAN).o
 ODIR := /lib/modules/$(shell uname -r)/kernel
 KDIR := /lib/modules/$(shell uname -r)/build
+ifneq ($(ARCH_KDIR),)
+	KDIR := $(ARCH_KDIR)
+endif
 PWD := $(shell pwd)
 
 define TAB
@@ -16,7 +19,7 @@ define TAB
 endef
 
 all: get-systeminfo clean
-	$(MAKE) -C $(KDIR) M=$(PWD) modules
+	$(MAKE) ARCH=arm -C $(KDIR) M=$(PWD) modules
 
 install: all install-mod udev-rules
 
@@ -37,6 +40,9 @@ get-systeminfo:
 	$(info $(TAB)$(shell lsb_release -c))
 	$(info KERNEL VERSION:)
 	$(info $(TAB)$(shell uname -a))
+	$(info GCC COMPILER:)
+	$(info $(TAB)-dumpmachine: $(shell ${CROSS_COMPILE}${CC} -dumpmachine))
+	$(info $(TAB)-dumpversion: $(shell ${CROSS_COMPILE}${CC} -dumpversion))
 	$(info *********************************************)
 
 udev-rules:
@@ -46,5 +52,5 @@ udev-rules:
 	$(shell udevadm control --reload-rules && udevadm trigger)
 
 clean:
-	$(MAKE) -C $(KDIR) M=$(PWD) clean
+	$(MAKE) ARCH=arm -C $(KDIR) M=$(PWD) clean
 
