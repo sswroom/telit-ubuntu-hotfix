@@ -1,0 +1,16 @@
+# Set USB Composite Device
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ATTRS{bNumConfigurations}=="3", ATTR{bConfigurationValue}="1"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ATTRS{bNumConfigurations}=="2", ATTR{bConfigurationValue}="1"
+
+# Set ModemManager to manual scan
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{ID_MM_DEVICE_MANUAL_SCAN_ONLY}="1"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ENV{ID_MM_DEVICE_MANUAL_SCAN_ONLY}="1"
+
+# Ignore all AT command ports, make ModemManager used QMI port
+# Telit LN940A9 series
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="02", ENV{ID_MM_PORT_IGNORE}="1"
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1900", ENV{.MM_USBIFNUM}=="03", ENV{ID_MM_PORT_IGNORE}="1"
+# Telit LN960A16 series
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ENV{.MM_USBIFNUM}=="02", ENV{ID_MM_PORT_IGNORE}="1"
+ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="1bc7", ATTRS{idProduct}=="1910", ENV{.MM_USBIFNUM}=="03", ENV{ID_MM_PORT_IGNORE}="1"
+
