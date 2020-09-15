@@ -365,12 +365,6 @@ static ssize_t raw_ip_store(struct device *d,  struct device_attribute *attr, co
 	if (strtobool(buf, &enable))
 		return -EINVAL;
 
-	/* we don't want to modify the "raw IP" only netdev */
-	if (info->flags & QMI_WWAN_QUIRK_RAWIP_ONLY) {
-		netdev_err(dev->net, "Cannot change the \"raw IP\" only device\n");
-		return len;
-	}
-
 	/* no change? */
 	if (enable == (info->flags & QMI_WWAN_FLAG_RAWIP))
 		return len;
@@ -732,7 +726,7 @@ static int qmi_wwan_change_dtr(struct usbnet *dev, bool on)
 
 static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
 {
-	int status = -1;
+	int status;
 	u8 *buf = intf->cur_altsetting->extra;
 	int len = intf->cur_altsetting->extralen;
 	struct usb_interface_descriptor *desc = &intf->cur_altsetting->desc;
@@ -1367,16 +1361,16 @@ static const struct usb_device_id products[] = {
 	{QMI_FIXED_INTF(0x1bbb, 0x0203, 2)},	/* Alcatel L800MA */
 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
-	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
 	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
-	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
-	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1201, 2)},	/* Telit LE920, LE920A4 */
-	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1250, 0)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1230, 2)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1260, 2)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1261, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1250, 0)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1230, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1260, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1261, 2)},	/* Telit LE910Cx */
 	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1900, 1)},	/* Telit LN940 series */
 	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1910, 0)},	/* Telit LN960A16 */
 	{QMI_FIXED_INTF(0x1c9e, 0x9801, 3)},	/* Telewell TW-3G HSPA+ */

@@ -549,6 +549,8 @@ struct option_blacklist_info {
 	const unsigned long sendsetup;
 	/* bitmask of interface numbers that are reserved */
 	const unsigned long reserved;
+	/* bitmask of device needs ZLP */
+	const unsigned long zlp;
 };
 
 static const struct option_blacklist_info four_g_w14_blacklist = {
@@ -706,6 +708,16 @@ static const struct option_blacklist_info telit_le910cx_rmnet_audio_blacklist = 
 static const struct option_blacklist_info telit_le910cx_rndis_audio_blacklist = {
 	.sendsetup = BIT(2),
 	.reserved = BIT(0) | BIT(1) | BIT(3) | BIT(4) | BIT(5) | BIT(6),
+};
+
+static const struct option_blacklist_info telit_fn980_rndis_blacklist = {
+	.sendsetup = BIT(2),
+	.reserved = BIT(3),
+};
+
+static const struct option_blacklist_info telit_fn980_flashing_blacklist = {
+	.sendsetup = BIT(0),
+	.zlp = BIT(17),
 };
 
 static const struct option_blacklist_info cinterion_rmnet2_blacklist = {
@@ -1278,6 +1290,14 @@ static const struct usb_device_id option_ids[] = {
 		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG5, 0xff),
 		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg0 },
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1050, 0xff),	/* Telit FN980 (rmnet) */
+		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1051, 0xff),	/* Telit FN980 (MBIM) */
+		.driver_info = (kernel_ulong_t)&telit_le920a4_blacklist_1 },
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1052, 0xff),	/* Telit FN980 (RNDIS) */
+		.driver_info = (kernel_ulong_t)&telit_fn980_rndis_blacklist },
+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1053, 0xff),	/* Telit FN980 (ECM) */
+		.driver_info = (kernel_ulong_t)&telit_le920a4_blacklist_1 },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
 		.driver_info = (kernel_ulong_t)&telit_me910_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
@@ -1330,6 +1350,8 @@ static const struct usb_device_id option_ids[] = {
 		.driver_info = (kernel_ulong_t)&telit_ln960_blacklist },
 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1911),				/* Telit LN960A16 (MBIM) */
 		.driver_info = (kernel_ulong_t)&telit_ln940_blacklist_mbim },
+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
+		.driver_info = (kernel_ulong_t)&telit_fn980_flashing_blacklist },
 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
 		.driver_info = (kernel_ulong_t)&net_intf1_blacklist },
@@ -2207,6 +2229,9 @@ static int option_attach(struct usb_serial *serial)
 	if (!blacklist || !test_bit(iface_desc->bInterfaceNumber,
 						&blacklist->sendsetup)) {
 		data->use_send_setup = 1;
+	}
+	if (test_bit(BIT(17), &blacklist->zlp)) {
+		data->use_zlp = 1;
 	}
 	spin_lock_init(&data->susp_lock);
 
