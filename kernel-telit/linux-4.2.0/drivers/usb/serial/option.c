@@ -521,6 +521,9 @@ static void option_instat_callback(struct urb *urb);
 #define VIATELECOM_VENDOR_ID			0x15eb
 #define VIATELECOM_PRODUCT_CDS7			0x0001
 
+/* Device needs ZLP */
+#define ZLP		17
+
 struct option_blacklist_info {
 	/* bitmask of interface numbers blacklisted for send_setup */
 	const unsigned long sendsetup;
@@ -673,7 +676,7 @@ static const struct option_blacklist_info telit_fn980_rndis_blacklist = {
 
 static const struct option_blacklist_info telit_fn980_flashing_blacklist = {
 	.sendsetup = BIT(0),
-	.zlp = BIT(17),
+	.zlp = BIT(ZLP),
 };
 
 static const struct option_blacklist_info telit_fn982_blacklist = {
@@ -2046,7 +2049,7 @@ static int option_attach(struct usb_serial *serial)
 						&blacklist->sendsetup)) {
 		data->send_setup = option_send_setup;
 	}
-	if (test_bit(BIT(17), &blacklist->zlp)) {
+	if (test_bit(ZLP, &blacklist->zlp)) {
 		data->use_zlp = 1;
 	}
 	spin_lock_init(&data->susp_lock);
