@@ -42,10 +42,15 @@
 #include <linux/workqueue.h>
 #include <linux/mii.h>
 #include <linux/usb.h>
-#include "usbnet.h"
+#include <linux/usb/usbnet.h>
 #include <linux/slab.h>
 #include <linux/kernel.h>
 #include <linux/pm_runtime.h>
+
+/*
+ * usbnet: fix alignment for frames with no ethernet header
+ */
+#define EVENT_NO_IP_ALIGN	13
 
 #define DRIVER_VERSION		"22-Aug-2005"
 

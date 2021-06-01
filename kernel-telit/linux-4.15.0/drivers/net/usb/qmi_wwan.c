@@ -63,7 +63,6 @@ enum qmi_wwan_flags {
 
 enum qmi_wwan_quirks {
 	QMI_WWAN_QUIRK_DTR = 1 << 0,	/* needs "set DTR" request */
-	QMI_WWAN_QUIRK_RAWIP_ONLY = 1 << 7,	/* only support "raw IP" framing */
 };
 
 struct qmimux_hdr {
@@ -736,17 +735,6 @@ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
 		qmi_wwan_change_dtr(dev, true);
 	}
 
-	/* set up the "raw IP" by default */
-	if (dev->driver_info->data & QMI_WWAN_QUIRK_RAWIP_ONLY) {
-		info->flags |= QMI_WWAN_FLAG_RAWIP;
-		dev->net->header_ops      = NULL;  /* No header */
-		dev->net->type            = ARPHRD_NONE;
-		dev->net->hard_header_len = 0;
-		dev->net->addr_len        = 0;
-		dev->net->flags           = IFF_POINTOPOINT | IFF_NOARP | IFF_MULTICAST;
-		dev_dbg(&intf->dev, "mode: raw IP\n");
-	}
-
 	/* Never use the same address on both ends of the link, even if the
 	 * buggy firmware told us to. Or, if device is assigned the well-known
 	 * buggy firmware MAC address, replace it with a random address,
@@ -865,16 +853,6 @@ static const struct driver_info	qmi_wwan_info_quirk_dtr = {
 	.data           = QMI_WWAN_QUIRK_DTR,
 };
 
-static const struct driver_info	qmi_wwan_info_quirk_rawip_only = {
-	.description	= "WWAN/QMI device",
-	.flags		= FLAG_WWAN | FLAG_SEND_ZLP,
-	.bind		= qmi_wwan_bind,
-	.unbind		= qmi_wwan_unbind,
-	.manage_power	= qmi_wwan_manage_power,
-	.rx_fixup       = qmi_wwan_rx_fixup,
-	.data           = QMI_WWAN_QUIRK_DTR | QMI_WWAN_QUIRK_RAWIP_ONLY,
-};
-
 #define HUAWEI_VENDOR_ID	0x12D1
 
 /* map QMI/wwan function by a fixed interface number */
@@ -886,11 +864,6 @@ static const struct driver_info	qmi_wwan_info_quirk_rawip_only = {
 #define QMI_QUIRK_SET_DTR(vend, prod, num) \
 	USB_DEVICE_INTERFACE_NUMBER(vend, prod, num), \
 	.driver_info = (unsigned long)&qmi_wwan_info_quirk_dtr
-
-/* devices requiring "set DTR" & "raw IP" quirk */
-#define QMI_QUIRK_SET_RAW(vend, prod, num) \
-	USB_DEVICE_INTERFACE_NUMBER(vend, prod, num), \
-	.driver_info = (unsigned long)&qmi_wwan_info_quirk_rawip_only
 
 /* Gobi 1000 QMI/wwan interface number is 3 according to qcserial */
 #define QMI_GOBI1K_DEVICE(vend, prod) \
@@ -1254,19 +1227,19 @@ static const struct usb_device_id products[] = {
 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x110a, 3)},	/* Telit MEx10G1 */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+	{QMI_FIXED_INTF(0x1bc7, 0x110a, 3)},	/* Telit MEx10G1 */
 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1201, 2)},	/* Telit LE920, LE920A4 */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1250, 0)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1230, 2)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1260, 2)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1261, 2)},	/* Telit LE910Cx */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1900, 1)},	/* Telit LN940 series */
-	{QMI_QUIRK_SET_RAW(0x1bc7, 0x1910, 0)},	/* Telit LN960A16 */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1230, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1250, 0)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1260, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1261, 2)},	/* Telit LE910Cx */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1900, 1)},	/* Telit LN940 series */
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1910, 0)},	/* Telit LN960A16 */
 	{QMI_FIXED_INTF(0x1c9e, 0x9801, 3)},	/* Telewell TW-3G HSPA+ */
 	{QMI_FIXED_INTF(0x1c9e, 0x9803, 4)},	/* Telewell TW-3G HSPA+ */
 	{QMI_FIXED_INTF(0x1c9e, 0x9b01, 3)},	/* XS Stick W100-2 from 4G Systems */
