@@ -35,6 +35,7 @@ ${ROOTP}Makefile
 EOF
 
 case $TYPE in
+  gzip)   tar -xf "$1" -I pigz -T $LISTS    ;;
   bzip2)  tar -xf "$1" -I pbzip2 -T $LISTS  ;;
   XZ)     tar -xf "$1" -I pxz -T $LISTS     ;;
   *)      echo "contents of '$1' cannot be extracted" ;;
