@@ -8,6 +8,8 @@
 *.mod
 *.mod.c
 *.order
+*.dwo
+*.mod.dwo
 
 #
 # Top-level generic files
