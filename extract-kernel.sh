@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LISTS=/dev/shm/files.list
+LISTS=/tmp/files.list
 TYPE=
 if [ -f "$1" ]; then
   TYPE=`file "$1" | cut -d ' ' -f2`
@@ -37,7 +37,7 @@ EOF
 case $TYPE in
   gzip)   tar -xf "$1" -I pigz -T $LISTS    ;;
   bzip2)  tar -xf "$1" -I pbzip2 -T $LISTS  ;;
-  XZ)     tar -xf "$1" -I pxz -T $LISTS     ;;
+  XZ)     tar -xf "$1" -I pixz -T $LISTS     ;;
   *)      echo "contents of '$1' cannot be extracted" ;;
 esac
 
