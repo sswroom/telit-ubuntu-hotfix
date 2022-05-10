@@ -14,5 +14,5 @@
 #
 # Top-level generic files
 #
-/Module.symvers
-
+Module.symvers
+modules.order
